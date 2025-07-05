@@ -1,17 +1,46 @@
-const Donation = require('../models/Donation');
+const Donation = require('../models/donation');
 
+// @desc Add a new donation
 exports.addDonation = async (req, res) => {
-  const donation = new Donation({ ...req.body, user_id: req.user.id });
-  await donation.save();
-  res.status(201).json({ message: 'Donation added' });
+  try {
+    const { title, description, quantity } = req.body;
+    const donation = new Donation({
+      title,
+      description,
+      quantity,
+      donor: req.user.id, // assuming auth middleware sets req.user
+    });
+    await donation.save();
+    res.status(201).json({ message: 'Donation created', donation });
+  } catch (error) {
+    console.error("❌ Error adding donation:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
+// @desc Get all approved donations
 exports.getApprovedDonations = async (req, res) => {
-  const donations = await Donation.find({ status: 'approved' });
-  res.json(donations);
+  try {
+    const donations = await Donation.find({ approved: true });
+    res.json(donations);
+  } catch (error) {
+    console.error("❌ Error fetching donations:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
+// @desc Approve a donation (admin only)
 exports.approveDonation = async (req, res) => {
-  await Donation.findByIdAndUpdate(req.params.id, { status: 'approved' });
-  res.json({ message: 'Donation approved' });
+  try {
+    const donation = await Donation.findById(req.params.id);
+    if (!donation) {
+      return res.status(404).json({ message: 'Donation not found' });
+    }
+    donation.approved = true;
+    await donation.save();
+    res.json({ message: 'Donation approved' });
+  } catch (error) {
+    console.error("❌ Error approving donation:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
