@@ -1,13 +1,10 @@
 const mongoose = require('mongoose');
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('MongoDB connected');
-  } catch (error) {
-    console.error(error.message);
-    process.exit(1);
-  }
-};
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['donor', 'ngo'], default: 'donor' }
+});
 
-module.exports = connectDB;
+module.exports = mongoose.model('User', userSchema);
