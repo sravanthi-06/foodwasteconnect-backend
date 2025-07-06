@@ -35,3 +35,20 @@ exports.approveDonation = async (req, res) => {
     res.status(500).json({ message: 'Server error while approving donation' });
   }
 };
+// ✅ Get donations by the logged-in user
+const getUserDonations = async (req, res) => {
+  try {
+    const donations = await Donation.find({ user: req.user.id }).sort({ createdAt: -1 });
+    res.json(donations);
+  } catch (error) {
+    console.error("Error fetching user donations:", error);
+    res.status(500).json({ message: "Server error fetching donations" });
+  }
+};
+
+module.exports = {
+  addDonation,
+  getApprovedDonations,
+  approveDonation,
+  getUserDonations, // ✅ export it here!
+};
