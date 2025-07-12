@@ -32,6 +32,8 @@ exports.login = async (req, res) => {
     res.json({ token, role: user.role });
   } catch (error) {
     console.error("❌ Login error:", error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(201).json({
+  message: "User registered successfully",
+  token, });// ✅ must include token in response
   }
 };
